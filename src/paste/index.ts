@@ -32,13 +32,19 @@ export class PasteData {
   static async fromFile(id: string) {
     const file = Bun.file(path.join(CONFIG.PASTE_PATH, id));
     if (!(await file.exists())) {
-      throw PasteNotFoundError;
+      throw new PasteNotFoundError();
     }
     const json = (await file.json()) as PasteData;
     if (Date.now() > json.timestamp + CONFIG.MAX_PRUNE_TIME) {
-      throw PasteExpiredError;
+      throw new PasteExpiredError();
     }
     return new PasteData(json);
+  }
+
+  static strip(pasteData: PasteData) {
+    const data = pasteData;
+    delete data.password;
+    return data;
   }
 }
 
@@ -85,7 +91,7 @@ export class Paste extends PasteData {
           return this.message;
         }
       } else {
-        throw EmptyPasswordError;
+        throw new EmptyPasswordError();
       }
     }
   }
@@ -93,7 +99,7 @@ export class Paste extends PasteData {
   async save() {
     // make pastes immutable, i guess
     if (await this.file.exists()) {
-      throw PasteExistsError;
+      throw new PasteExistsError();
     }
     const data = this.toPasteData();
     await this.file.write(JSON.stringify(data));
@@ -101,7 +107,7 @@ export class Paste extends PasteData {
 
   async delete() {
     if (!(await this.file.exists())) {
-      throw PasteNotFoundError;
+      throw new PasteNotFoundError();
     }
     try {
       await this.file.unlink();

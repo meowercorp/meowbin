@@ -1,6 +1,7 @@
 import path from "node:path";
 import os from "node:os";
 
+// TODO: implement .env.example things later
 const CONFIG = {
   BASE_PATH:
     Bun.env.BASE_PATH ||
