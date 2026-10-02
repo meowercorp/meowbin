@@ -19,6 +19,7 @@ export class PasteData {
   encrypted?: boolean;
   message: string;
   password?: string;
+  burnOnRead?: boolean;
 
   constructor(data: PasteData, id?: string) {
     this.id = data.id ?? id;
@@ -27,6 +28,7 @@ export class PasteData {
     this.encrypted = data.encrypted;
     this.message = data.message;
     this.password = data.password;
+    this.burnOnRead = data.burnOnRead;
   }
 
   static async fromFile(id: string) {
@@ -36,6 +38,7 @@ export class PasteData {
     }
     const json = (await file.json()) as PasteData;
     if (Date.now() > json.timestamp + CONFIG.MAX_PRUNE_TIME) {
+      file.unlink();
       throw new PasteExpiredError();
     }
     return new PasteData(json);
